@@ -6,7 +6,6 @@
 
 #include "include/recalloc.h"
 #include "include/stack.h"
-#include "include/program_logs.h"
 
 //=====================================================================================================================================
 
@@ -168,25 +167,24 @@ static int isStackCorrect (stack_t* const stk)
         return 1;
     if (stk->size < 0)
         return 1;
+    
+    return 0;
 }
 
 void stackDump (stack_t* const stk)
 {
     assert (stk != nullptr);
 
-    debugInfo ("----------------------------------------------\n");
-    debugInfo ("----------------------------------------------\n");
-    debugInfo ("Status:   %8s \n", isStackCorrect (stk) ? "error" : "ok");
-    debugInfo ("Size:     %8ld\n", stk->size);
-    debugInfo ("Capacity: %8ld\n", stk->capacity);
-    debugInfo ("----------------------------------------------\n");
+    
+    fprintf (stdout, "\n----------------------------------------------\n");
+    fprintf (stdout, "Status:   %8s \n", isStackCorrect (stk) ? "error" : "ok");
+    fprintf (stdout, "Size:     %8ld\n", stk->size);
+    fprintf (stdout, "Capacity: %8ld\n", stk->capacity);
+    fprintf (stdout, "----------------------------------------------\n");
 
-    for (size_t i = 0; i < stk->size; i++) 
+    for (size_t i = 0; i < stk->capacity; i++) 
     {
-            debugInfo ("0x%.4lX stack[%8ld] = %x\n", sizeof (*stk->data) * i, i, stk->data[i]);
+            fprintf (stdout, "0x%.4lX stack[%8ld] = %x\n", sizeof (*stk->data) * i, i, stk->data[i]);
     }
-    debugInfo ("capacity: %ld\n", stk->capacity);
-    debugInfo ("size:     %ld\n", stk->size);
-    debugInfo ("----------------------------------------------\n");
-    debugInfo ("----------------------------------------------\n");
+    fprintf (stdout, "----------------------------------------------\n");
 }

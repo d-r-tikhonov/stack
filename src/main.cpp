@@ -12,8 +12,11 @@ int main ()
 	stackCtor (&stk);
 
 	stackPush (&stk, 10);
+	stackDump (&stk);
 
 	elem_t x = stackPop (&stk);
+	stackDump (&stk);
+
 
 	stackDtor (&stk);
 
