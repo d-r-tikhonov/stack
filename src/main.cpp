@@ -7,14 +7,17 @@
 
 int main ()
 {
-	struct stack_t stk = {0};
+	struct stack_t stk = {};
 
 	stackCtor (&stk);
 
-	stackPush (&stk, 10);
+	for (size_t i = 0; i < 23; i++)
+	{
+		stackPush(&stk, i);
+	}
 	stackDump (&stk);
 
-	elem_t x = stackPop (&stk);
+	stackPop (&stk);
 	stackDump (&stk);
 
 
