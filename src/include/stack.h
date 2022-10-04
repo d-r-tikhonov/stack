@@ -5,38 +5,43 @@
 
 #include <stdint.h>
 
-//=====================================================================================================================================
-
 typedef int elem_t;
-
-//=====================================================================================================================================
-
 #define CANARY_PROTECT
-// #define HASH_PROTECT
+#define HASH_PROTECT
 
 //=====================================================================================================================================
 
 #ifdef CANARY_PROTECT
 	typedef uint32_t canary_t;
+	const   uint32_t Canary = 0xCAFEBABE;
 #endif
 
 //=====================================================================================================================================
 
 #ifdef HASH_PROTECT
 	typedef uint32_t hash_t;
+	const uint32_t Seed = 0xC0FFEE;
 #endif
 
 //=====================================================================================================================================
 
 struct stack_t
 {
-	uint32_t leftCanary = 0;
+	#ifdef CANARY_PROTECT
+		canary_t leftCanary = 0;
+	#endif
 
-	elem_t *data    = nullptr;
+	elem_t* data    = nullptr;
 	size_t size     = 0;
 	size_t capacity = 0;
 
-	uint32_t rightCanary;
+	#ifdef HASH_PROTECT
+		hash_t hash = 0;
+	#endif	
+
+	#ifdef CANARY_PROTECT
+		canary_t rightCanary = 0;
+	#endif
 };
 
 //=====================================================================================================================================
