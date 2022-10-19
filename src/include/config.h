@@ -1,9 +1,9 @@
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef CONFIG_H
+#define CONFIG_H
 
 typedef int elem_t;
 
-// #define CANARY_PROTECT
+#define CANARY_PROTECT
 #define HASH_PROTECT
 
 #endif

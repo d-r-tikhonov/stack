@@ -3,9 +3,17 @@
 
 #include <stdio.h>
 
-#define ASSERT (condition)                                              \
-    if (!(condition))                                                   \
-        fprintf (stdout, "Error: " #condition, "in %d in %s in %s", 
-            __LINE__, __FILE__, __PRETTY_FUNCTION__)
+#ifndef NODEBUG
+    #define ASSERT (condition)                                          \
+    if (!(condition)){                                                  \
+        fprintf (stderr, "Error in %s:\n"                               \
+                        "FILE: %s\n"                                    \
+                        "LINE: %d\n"                                    \
+                        "FUNCTION: %s\n",                               \
+               #condition, __FILE__, __LINE__, __PRETTY_FUNCTION__);    \
+        abort();}
+#else
+    #define ASSERT (condition) ;
 #endif
 
+#endif

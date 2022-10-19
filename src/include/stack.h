@@ -5,9 +5,7 @@
 
 #include <stdint.h>
 
-typedef int elem_t;
-#define CANARY_PROTECT
-#define HASH_PROTECT
+#include "config.h"
 
 //=====================================================================================================================================
 

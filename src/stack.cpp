@@ -5,10 +5,11 @@
 #include <stdio.h>
 #include <errno.h>
 #include <stdint.h>
-#include <TXLib.h>
 
+#include "include/config.h"
 #include "include/recalloc.h"
 #include "include/stack.h"
+#include "include/errors.h"
 #include "include/hash.h"
 
 //=====================================================================================================================================
@@ -46,9 +47,6 @@ void stackCtor (stack_t* const stk)
 {
     assert (stk != nullptr);
 
-    int err = 0;                   
-    // ASSERT (isStackEmpty (stk));
-
     stk->capacity = StackInitValue;
     stk->size     = 0;
 
@@ -62,13 +60,6 @@ void stackCtor (stack_t* const stk)
     #ifdef HASH_PROTECT
         stk->hash = hashStack (stk, Seed);
     #endif
-
-    // err = isStackCorrect (stk);
-
-    if (err)
-    {
-        //err
-    }
 }
 
 //=====================================================================================================================================
@@ -76,14 +67,6 @@ void stackCtor (stack_t* const stk)
 void stackPush (stack_t* stk, const elem_t item)
 {
     assert (stk != nullptr);
-
-    int err = 0;
-    // err = isStackCorrect(stk);
-
-    if (err)
-    {
-        //err
-    }
 
     stackIncrease (stk);
 
@@ -93,13 +76,6 @@ void stackPush (stack_t* stk, const elem_t item)
     #ifdef HASH_PROTECT
         stk->hash = hashStack (stk, Seed);
     #endif
-
-    // err = isStackCorrect (stk);
-
-    if (err)
-    {
-        //err
-    }
 }
 
 //=====================================================================================================================================
@@ -107,13 +83,6 @@ void stackPush (stack_t* stk, const elem_t item)
 elem_t stackPop (stack_t* const stk)
 {
     assert (stk != nullptr);
-
-    int err = 0;
-    // err = isStackCorrect(stk);
-    if (err)
-    {
-        //err
-    }
 
     elem_t item = Poison;
 
@@ -192,7 +161,7 @@ static int isStackCorrect (stack_t* const stk)
 
 void stackDump (stack_t* const stk)
 {
-    assert(stk != nullptr);
+    assert (stk != nullptr);
 
     if (stk->data == nullptr) 
     {
@@ -215,41 +184,41 @@ void stackDump (stack_t* const stk)
         fprintf (logFile, " Address   end: %#0X\n", (size_t) stk->data + sizeof (elem_t) * stk->capacity);
         fprintf (logFile, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     }
-        #ifdef HASH_PROTECT 
-            fprintf (logFile, " Hash      : %8x\n", hashStack (stk, Seed));
-            fprintf (logFile, " Saved hash: %8x\n", stk->hash);
-            fprintf (logFile, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        #endif
+    #ifdef HASH_PROTECT 
+        fprintf (logFile, " Hash      : %8x\n", hashStack (stk, Seed));
+        // fprintf (logFile, " Saved hash: %8x\n", stk->hash);
+        fprintf (logFile, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    #endif
 
-        #ifdef CANARY_PROTECT
-            fprintf (logFile, " Left  stack canary = %#0X\n", stk->leftCanary);
-            fprintf (logFile, " Right stack canary = %#0X\n", stk->rightCanary);
-            fprintf (logFile, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    #ifdef CANARY_PROTECT
+        fprintf (logFile, " Left  stack canary = %#0X\n", stk->leftCanary);
+        fprintf (logFile, " Right stack canary = %#0X\n", stk->rightCanary);
+        fprintf (logFile, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
-            fprintf (logFile, " Left  data canary =  %#0X\n Address: %#0X\n", *leftCanary (stk->data), (size_t) leftCanary (stk->data));
+        fprintf (logFile, " Left  data canary =  %#0X\n Address: %#0X\n", *leftCanary (stk->data), (size_t) leftCanary (stk->data));
 
-            fprintf (logFile, " Right data canary =  %#0X\n Address: %#0X\n", *rightCanary (stk->data, stk->capacity), 
-                (size_t) rightCanary (stk->data, stk->capacity));
-            fprintf (logFile, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        #endif
+        fprintf (logFile, " Right data canary =  %#0X\n Address: %#0X\n", *rightCanary (stk->data, stk->capacity), 
+            (size_t) rightCanary (stk->data, stk->capacity));
+        fprintf (logFile, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    #endif
 
-        for (size_t i = 0; i < stk->capacity; i++) 
+    for (size_t i = 0; i < stk->capacity; i++) 
+    {
+        if (stk->data[i] == Poison) 
         {
-            if (stk->data[i] == Poison) 
-            {
-                fprintf (logFile, "| stack[%7u] = %18s |\n", i, "Poison");
-            }
-            else if (stk->data[i] == nullValue)
-            {
-                fprintf (logFile, "| stack[%7u] = %18s |\n", i, "NULL Value");
-            }
-            else 
-            {
-                fprintf (logFile, "| stack[%7u] = %18d |\n", i, stk->data[i]);
-            }
+            fprintf (logFile, "| stack[%7u] = %18s |\n", i, "Poison");
         }
+        else if (stk->data[i] == nullValue)
+        {
+            fprintf (logFile, "| stack[%7u] = %18s |\n", i, "NULL Value");
+        }
+        else 
+        {
+            fprintf (logFile, "| stack[%7u] = %18d |\n", i, stk->data[i]);
+        }
+    }
 
-        fprintf (logFile, "~~~~~~~~~~~~~~~~~~~ END DUMP ~~~~~~~~~~~~~~~~~~~~~\n");
+    fprintf (logFile, "~~~~~~~~~~~~~~~~~~~ END DUMP ~~~~~~~~~~~~~~~~~~~~~\n");
 }
 
 //=====================================================================================================================================
@@ -276,8 +245,7 @@ void stackDump (stack_t* const stk)
 
 //=====================================================================================================================================
 
-//TODO return static
-elem_t* recallocStack (stack_t* const stk, const size_t capacity)
+static elem_t* recallocStack (stack_t* const stk, const size_t capacity)
 {
     assert (stk != nullptr);
 
@@ -342,10 +310,7 @@ static void stackIncrease (stack_t* const stk)
         
         elem_t* data = recallocStack (stk, newCapacity);
 
-        if (data == nullptr)
-        {
-            //err
-        }
+        assert (data != nullptr);
 
         stk->data     = (elem_t*) data;
         stk->capacity = newCapacity;
@@ -363,10 +328,7 @@ static void stackDecrease (stack_t* const stk)
         
         elem_t* data = recallocStack (stk, newCapacity);
 
-        if (data == nullptr)
-        {
-            //err
-        }
+        assert (data != nullptr);
 
         stk->data     = (elem_t*) data;
         stk->capacity = newCapacity;
@@ -378,12 +340,12 @@ static void stackDecrease (stack_t* const stk)
 #ifdef HASH_PROTECT
     static hash_t hashStack (stack_t *const stk, uint32_t seed)
     {
-            assert (stk != nullptr);
+        assert (stk != nullptr);
 
-            hash_t  stkHash = murmurHash (stk, sizeof (stack_t), seed);
-            hash_t dataHash = murmurHash (stk->data, stk->capacity * sizeof (elem_t), seed);
+        hash_t  stkHash = murmurHash (stk, sizeof (stack_t), seed);
+        hash_t dataHash = murmurHash (stk->data, stk->capacity * sizeof (elem_t), seed);
 
-            return stkHash ^ dataHash;
+        return stkHash ^ dataHash;
     }
 #endif
 

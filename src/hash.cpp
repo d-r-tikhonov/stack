@@ -15,17 +15,17 @@ uint32_t murmurHash (const void* key, size_t size, uint32_t seed)
 
     while (size >= 4) 
     {
-            uint32_t k = *(const uint32_t*) data;
+        uint32_t k = *(const uint32_t*) data;
 
-            k *= mp;
-            k ^= k >> sft;
-            k *= mp;
+        k *= mp;
+        k ^= k >> sft;
+        k *= mp;
 
-            hash *= mp;
-            hash ^= k;
+        hash *= mp;
+        hash ^= k;
 
-            data += 4;
-            size  -= 4;
+        data += 4;
+        size -= 4;
     }
 
     uint32_t item = 0;
@@ -34,10 +34,12 @@ uint32_t murmurHash (const void* key, size_t size, uint32_t seed)
         case 3:
                 item = (uint32_t) data[2];
                 hash ^= item << 16;
+                break;
 
         case 2:
                 item = (uint32_t) data[1];
                 hash ^= item << 8u;
+                break;
 
         case 1:
                 item = (uint32_t) data[0];
@@ -46,7 +48,7 @@ uint32_t murmurHash (const void* key, size_t size, uint32_t seed)
                 break;
 
         default:
-                assert(0);
+                break;
     };
 
     hash ^= hash >> 13;
