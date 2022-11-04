@@ -46,7 +46,7 @@ static void nullValueSet (elem_t* data, size_t size);
 
 void stackCtor (stack_t* const stk)
 {
-    assert (stk != nullptr);
+    ASSERT (stk != nullptr);
 
     stk->capacity = StackInitValue;
     stk->size     = 0;
@@ -67,7 +67,7 @@ void stackCtor (stack_t* const stk)
 
 void stackPush (stack_t* stk, const elem_t item)
 {
-    assert (stk != nullptr);
+    ASSERT (stk != nullptr);
 
     stackIncrease (stk);
 
@@ -83,7 +83,7 @@ void stackPush (stack_t* stk, const elem_t item)
 
 elem_t stackPop (stack_t* const stk)
 {
-    assert (stk != nullptr);
+    ASSERT (stk != nullptr);
 
     elem_t item = Poison;
 
@@ -106,7 +106,7 @@ elem_t stackPop (stack_t* const stk)
 
 void stackDtor (stack_t* const stk)
 {   
-    assert (stk != nullptr);
+    ASSERT (stk != nullptr);
 
     #ifdef CANARY_PROTECT
         free ((canary_t*) stk->data - sizeof (canary_t)); //BAG
@@ -132,7 +132,7 @@ void stackDtor (stack_t* const stk)
 
 static bool isStackEmpty (stack_t* const stk)
 {
-    assert (stk != nullptr);
+    ASSERT (stk != nullptr);
 
     if (!(stk -> data == nullptr))
         return 1;
@@ -148,7 +148,7 @@ static bool isStackEmpty (stack_t* const stk)
 
 static int isStackCorrect (stack_t* const stk)
 {
-    assert (stk != nullptr);
+    ASSERT (stk != nullptr);
 
     if (stk -> data == nullptr)
         return 1;
@@ -162,7 +162,7 @@ static int isStackCorrect (stack_t* const stk)
 
 void stackDump (stack_t* const stk)
 {
-    assert (stk != nullptr);
+    ASSERT (stk != nullptr);
 
     if (stk->data == nullptr) 
     {
@@ -227,7 +227,7 @@ void stackDump (stack_t* const stk)
 #ifdef CANARY_PROTECT
     static canary_t* leftCanary (void* const data)
     {
-        assert (data != nullptr);
+        ASSERT (data != nullptr);
 
         return (canary_t*) ((char*) data - sizeof (canary_t));
     }
@@ -238,7 +238,7 @@ void stackDump (stack_t* const stk)
 #ifdef CANARY_PROTECT
     static canary_t* rightCanary (void* const data, const size_t capacity)
     {   
-        assert (data != nullptr);
+        ASSERT (data != nullptr);
 
         return (canary_t*) ((char*) data + (sizeof (elem_t) * (capacity))); 
     }
@@ -248,7 +248,7 @@ void stackDump (stack_t* const stk)
 
 static elem_t* recallocStack (stack_t* const stk, const size_t capacity)
 {
-    assert (stk != nullptr);
+    ASSERT (stk != nullptr);
 
     elem_t* data = stk->data;
     
@@ -285,7 +285,7 @@ static elem_t* recallocStack (stack_t* const stk, const size_t capacity)
 
 static bool isStackFull (const stack_t* const stk)
 {
-    assert (stk != nullptr);
+    ASSERT (stk != nullptr);
 
     return stk->capacity == stk->size;
 }
@@ -294,7 +294,7 @@ static bool isStackFull (const stack_t* const stk)
 
 static bool isStackVast (const stack_t* const stk)
 {
-    assert (stk != nullptr);
+    ASSERT (stk != nullptr);
 
     return stk->capacity / StackMultiplier >= stk->size &&
         stk->capacity > StackInitValue; 
@@ -311,7 +311,7 @@ static void stackIncrease (stack_t* const stk)
         
         elem_t* data = recallocStack (stk, newCapacity);
 
-        assert (data != nullptr);
+        ASSERT (data != nullptr);
 
         stk->data     = (elem_t*) data;
         stk->capacity = newCapacity;
@@ -329,7 +329,7 @@ static void stackDecrease (stack_t* const stk)
         
         elem_t* data = recallocStack (stk, newCapacity);
 
-        assert (data != nullptr);
+        ASSERT (data != nullptr);
 
         stk->data     = (elem_t*) data;
         stk->capacity = newCapacity;
@@ -341,7 +341,7 @@ static void stackDecrease (stack_t* const stk)
 #ifdef HASH_PROTECT
     static hash_t hashStack (stack_t *const stk, uint32_t seed)
     {
-        assert (stk != nullptr);
+        ASSERT (stk != nullptr);
 
         hash_t  stkHash = murmurHash (stk, sizeof (stack_t), seed);
         hash_t dataHash = murmurHash (stk->data, stk->capacity * sizeof (elem_t), seed);
