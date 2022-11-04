@@ -5,12 +5,13 @@
 #include <stdio.h>
 #include <errno.h>
 #include <stdint.h>
+#include <TXLib.h>
 
-#include "include/config.h"
-#include "include/recalloc.h"
-#include "include/stack.h"
-#include "include/errors.h"
-#include "include/hash.h"
+#include "config.h"
+#include "recalloc.h"
+#include "stack.h"
+#include "errors.h"
+#include "hash.h"
 
 //=====================================================================================================================================
 
@@ -108,7 +109,7 @@ void stackDtor (stack_t* const stk)
     assert (stk != nullptr);
 
     #ifdef CANARY_PROTECT
-        free (stk->data - sizeof (canary_t));
+        free ((canary_t*) stk->data - sizeof (canary_t)); //BAG
     #else
         free (stk->data);
     #endif
@@ -186,7 +187,7 @@ void stackDump (stack_t* const stk)
     }
     #ifdef HASH_PROTECT 
         fprintf (logFile, " Hash      : %8x\n", hashStack (stk, Seed));
-        // fprintf (logFile, " Saved hash: %8x\n", stk->hash);
+        fprintf (logFile, " Saved hash: %8x\n", stk->hash);
         fprintf (logFile, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     #endif
 
@@ -214,7 +215,7 @@ void stackDump (stack_t* const stk)
         }
         else 
         {
-            fprintf (logFile, "| stack[%7u] = %18d |\n", i, stk->data[i]);
+            fprintf (logFile, "| stack[%7u] = %18X |\n", i, stk->data[i]);
         }
     }
 
@@ -239,7 +240,7 @@ void stackDump (stack_t* const stk)
     {   
         assert (data != nullptr);
 
-        return (canary_t*) ((char*) data + (sizeof (elem_t) * (capacity - 1)) + sizeof (canary_t)); 
+        return (canary_t*) ((char*) data + (sizeof (elem_t) * (capacity))); 
     }
 #endif
 
@@ -355,7 +356,7 @@ static void dataInit (stack_t* stk)
 {
     #ifdef CANARY_PROTECT
         size_t canaryCapacity = StackInitValue * sizeof (elem_t) + 2 * sizeof (canary_t);
-        elem_t* data = (elem_t*) malloc (canaryCapacity);
+        elem_t* data = (elem_t*) calloc (canaryCapacity, sizeof (char*));
 
         data = (elem_t*) ((canary_t*) data + 1);
 
@@ -378,7 +379,7 @@ static void dataInit (stack_t* stk)
 
 static void nullValueSet (elem_t* data, size_t size)
 {   
-    for (size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++) // TODO memset
     {
         data[i] = nullValue;
     }

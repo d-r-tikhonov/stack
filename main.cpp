@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "include/stack.h"
+#include "stack.h"
 
 int main ()
 {

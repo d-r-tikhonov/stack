@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "include/hash.h"
+#include "hash.h"
 
 uint32_t murmurHash (const void* key, size_t size, uint32_t seed)
 {
