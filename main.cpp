@@ -1,3 +1,4 @@
+#include <TXLib.h>
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -7,12 +8,12 @@
 
 int main ()
 {
-	struct stack_t stk = {};
+	stack_t stk = {};
 
 	stackCtor (&stk);
 	stackDump (&stk);
 
-	for (size_t i = 0; i <= 10; i++)
+	for (elem_t i = 0; i <= 19; i++)
 	{
 		stackPush (&stk, i);
 		stackDump (&stk);

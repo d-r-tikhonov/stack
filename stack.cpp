@@ -5,13 +5,12 @@
 #include <stdio.h>
 #include <errno.h>
 #include <stdint.h>
-#include <TXLib.h>
 
 #include "config.h"
-#include "recalloc.h"
 #include "stack.h"
 #include "errors.h"
 #include "hash.h"
+#include "recalloc.h"
 
 //=====================================================================================================================================
 
@@ -109,7 +108,7 @@ void stackDtor (stack_t* const stk)
     ASSERT (stk != nullptr);
 
     #ifdef CANARY_PROTECT
-        free ((canary_t*) stk->data - sizeof (canary_t)); //BAG
+        free((char*) stk->data - sizeof(canary_t)); 
     #else
         free (stk->data);
     #endif
@@ -168,8 +167,8 @@ void stackDump (stack_t* const stk)
     {
         fprintf (logFile, "~~~~~~~~~~~~~~~~~~~~START DUMP~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
         fprintf (logFile, " Empty stack: %17p\n", stk);
-        fprintf (logFile, " Size:     %10u\n", stk->size);
-        fprintf (logFile, " Capacity: %10u\n", stk->capacity);
+        fprintf (logFile, " Size:     %10llu\n", stk->size);
+        fprintf (logFile, " Capacity: %10llu\n", stk->capacity);
         fprintf (logFile, " Address start: nullptr\n");
         fprintf (logFile, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     } 
@@ -179,27 +178,23 @@ void stackDump (stack_t* const stk)
         fprintf (logFile, "~~~~~~~~~~~~~~~~~ START DUMP ~~~~~~~~~~~~~~~~~~\n");
         fprintf (logFile, " Stack: %17p\n", stk);
         fprintf (logFile, " STATUS: %16s\n", "OK!");
-        fprintf (logFile, " Size:     %14u\n", stk->size);
-        fprintf (logFile, " Capacity: %14u\n", stk->capacity);
-        fprintf (logFile, " Address start: %#0X\n", (size_t) stk->data);
-        fprintf (logFile, " Address   end: %#0X\n", (size_t) stk->data + sizeof (elem_t) * stk->capacity);
+        fprintf (logFile, " Size:     %14llu\n", stk->size);
+        fprintf (logFile, " Capacity: %14llu\n", stk->capacity);
+        fprintf (logFile, " Address start: %p\n", stk->data);
+        fprintf (logFile, " Address   end: %p\n", stk->data + sizeof (elem_t) * stk->capacity);
         fprintf (logFile, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     }
-    #ifdef HASH_PROTECT 
-        fprintf (logFile, " Hash      : %8x\n", hashStack (stk, Seed));
-        fprintf (logFile, " Saved hash: %8x\n", stk->hash);
-        fprintf (logFile, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    #endif
 
     #ifdef CANARY_PROTECT
         fprintf (logFile, " Left  stack canary = %#0X\n", stk->leftCanary);
         fprintf (logFile, " Right stack canary = %#0X\n", stk->rightCanary);
         fprintf (logFile, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
-        fprintf (logFile, " Left  data canary =  %#0X\n Address: %#0X\n", *leftCanary (stk->data), (size_t) leftCanary (stk->data));
+        fprintf (logFile, " Left  data canary =  %#0X\n Address: %p\n", *leftCanary (stk->data), leftCanary (stk->data));
 
-        fprintf (logFile, " Right data canary =  %#0X\n Address: %#0X\n", *rightCanary (stk->data, stk->capacity), 
-            (size_t) rightCanary (stk->data, stk->capacity));
+        fprintf (logFile, " Right data canary =  %#0X\n Address: %p\n", *rightCanary (stk->data, stk->capacity), 
+                rightCanary (stk->data, stk->capacity));
+
         fprintf (logFile, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     #endif
 
@@ -207,15 +202,15 @@ void stackDump (stack_t* const stk)
     {
         if (stk->data[i] == Poison) 
         {
-            fprintf (logFile, "| stack[%7u] = %18s |\n", i, "Poison");
+            fprintf (logFile, "| stack[%7llu] = %18s |\n", i, "Poison");
         }
         else if (stk->data[i] == nullValue)
         {
-            fprintf (logFile, "| stack[%7u] = %18s |\n", i, "NULL Value");
+            fprintf (logFile, "| stack[%7llu] = %18s |\n", i, "NULL Value");
         }
         else 
         {
-            fprintf (logFile, "| stack[%7u] = %18X |\n", i, stk->data[i]);
+            fprintf (logFile, "| stack[%7llu] = %18X |\n", i, stk->data[i]);
         }
     }
 
